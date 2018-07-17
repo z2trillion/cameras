@@ -48,10 +48,10 @@ def subdivide_line(start, end, division_length, is_innie):
 
 def rectangle(origin, height, width):
     vertices = [
+        np.array(origin),
         np.array(origin) + np.array([0, width]),
         np.array(origin) + np.array([height, width]),
         np.array(origin) + np.array([height, 0]),
-        np.array(origin),
     ]
     return map(tuple, vertices)
 
@@ -59,13 +59,13 @@ def rectangle(origin, height, width):
 def symmetric_trapezoid(origin, height, wide_width, narrow_width):
     vertices = [
         np.array(origin),
-        np.array(origin) + np.array([wide_width, 0]),
-        np.array(origin) + np.array(
-            [wide_width - float(wide_width - narrow_width) / 2.0, height]
-        ),
         np.array(origin) + np.array(
             [float(wide_width - narrow_width) / 2.0, height]
         ),
+        np.array(origin) + np.array(
+            [wide_width - float(wide_width - narrow_width) / 2.0, height]
+        ),
+        np.array(origin) + np.array([wide_width, 0]),
     ]
     return map(tuple, vertices)
 
@@ -97,23 +97,24 @@ polygons = open_frustrum((64, 64), (178, 128), 150)
 phases = [
     [True, True, True, True],
     [True, False, True, False],
-    [True, False, True, False],
-    [True, True, True, True],
-    [True, True, True, True],
+    [False, False, False, False],
 ]
 
 draw_circle = True
 
 for polygon_count, (polygon, phases) in enumerate(zip(polygons, phases)):
+    dwg = svgwrite.Drawing('%i.svg' % polygon_count, size=('240mm', '240mm'),
+                           viewBox=('0 0 240 240'))
+
     segments = []
     for (start, end), phase in zip(zip(polygon, np.roll(polygon, -1, axis=0)),
                                    phases):
         segments.append(
             subdivide_line(np.array(start), np.array(end), 8, phase)
         )
+        dwg.add(dwg.line(start, end, stroke=svgwrite.rgb(200, 0, 0, '%'),
+                         stroke_width=1))
 
-    dwg = svgwrite.Drawing('%i.svg' % polygon_count, size=('240mm', '240mm'),
-                           viewBox=('0 0 240 240'))
     for segment in segments:
         for i in range(len(segment) - 1):
             dwg.add(dwg.line(segment[i], segment[i+1],
