@@ -117,7 +117,7 @@ for polygon_count, (polygon, phases) in enumerate(zip(polygons, phases)):
                                    phases):
         midpoint_offset = 0
         if polygon_count == 1:
-            offset_magnitude = 1.0
+            offset_magnitude = 0.5
             if line_count == 0:
                 midpoint_offset = -offset_magnitude
             elif line_count == 2:
