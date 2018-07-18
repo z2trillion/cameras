@@ -5,9 +5,11 @@ import svgwrite
 origin = np.array([20.0, 20.0])
 
 
-def subdivide_line(start, end, division_length, is_innie):
-    midpoint = (start + end) / 2.0
-    step = division_length * (end - start) / np.linalg.norm(end - start)
+def subdivide_line(start, end, division_length, is_innie, midpoint_offset=0.0):
+    unit_vector = (end - start) / np.linalg.norm(end - start)
+
+    midpoint = (start + end) / 2.0 + midpoint_offset * unit_vector
+    step = division_length * unit_vector
     cuts = []
     position = step / 2.0
     exclusion = 10
@@ -84,7 +86,7 @@ def open_frustrum(closed_rectangle, open_rectangle, depth,
         rectangle(front_height - front_height_fudge,
                   front_width - front_width_fudge),
         symmetric_trapezoid(
-            np.sqrt(depth**2 + (float(height_open - height_closed) / 2.0)**2),
+            0.5 + np.sqrt(depth**2 + (float(height_open - height_closed) / 2.0)**2),
             width_open,
             width_closed),
         symmetric_trapezoid(
@@ -101,33 +103,39 @@ polygons = open_frustrum((64.0, 64.0), (178.0, 128.0), 150.0,
 
 phases = [
     [True, True, True, True],
-    [True, True, True, True],
+    [True, False, True, True],
     [False, False, False, False],
 ]
-
-draw_circle = True
 
 for polygon_count, (polygon, phases) in enumerate(zip(polygons, phases)):
     dwg = svgwrite.Drawing('%i.svg' % polygon_count, size=('240mm', '240mm'),
                            viewBox=('0 0 240 240'))
 
     segments = []
+    line_count = 0
     for (start, end), phase in zip(zip(polygon, np.roll(polygon, -1, axis=0)),
                                    phases):
+        midpoint_offset = 0
+        if polygon_count == 1:
+            offset_magnitude = 1.0
+            if line_count == 0:
+                midpoint_offset = -offset_magnitude
+            elif line_count == 2:
+                midpoint_offset = offset_magnitude
+
         segments.append(
-            subdivide_line(np.array(start), np.array(end), 8, phase)
+            subdivide_line(np.array(start), np.array(end), 8, phase,
+                           midpoint_offset)
         )
-        # dwg.add(dwg.line(start, end, stroke=svgwrite.rgb(0, 0, 0, '%'),
-        #                  stroke_width=1))
+        line_count += 1
 
     for segment in segments:
         for i in range(len(segment) - 1):
             dwg.add(dwg.line(segment[i], segment[i+1],
                              stroke=svgwrite.rgb(255, 0, 0, '%'),
                              stroke_width=1))
-    if draw_circle:
+    if polygon_count == 0:
         dwg.add(dwg.circle((51, 51), 34.6 / 2.0,
                            stroke=svgwrite.rgb(255, 0, 0),
                            stroke_width=1, fill='none'))
     dwg.save()
-    draw_circle = False
