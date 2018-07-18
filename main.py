@@ -96,12 +96,12 @@ def open_frustrum(closed_rectangle, open_rectangle, depth,
 
 front_height_fudge = 2
 front_width_fudge = 2
-polygons = open_frustrum((64, 64), (178, 128), 150,
+polygons = open_frustrum((64.0, 64.0), (178.0, 128.0), 150.0,
                          front_height_fudge, front_width_fudge)
 
 phases = [
     [True, True, True, True],
-    [True, False, True, False],
+    [True, True, True, True],
     [False, False, False, False],
 ]
 
