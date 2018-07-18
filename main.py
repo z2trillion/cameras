@@ -2,6 +2,9 @@ import numpy as np
 import svgwrite
 
 
+origin = np.array([20.0, 20.0])
+
+
 def subdivide_line(start, end, division_length, is_innie):
     midpoint = (start + end) / 2.0
     step = division_length * (end - start) / np.linalg.norm(end - start)
@@ -46,53 +49,55 @@ def subdivide_line(start, end, division_length, is_innie):
     return np.array(result)
 
 
-def rectangle(origin, height, width):
+def rectangle(height, width):
     vertices = [
-        np.array(origin),
-        np.array(origin) + np.array([0, width]),
-        np.array(origin) + np.array([height, width]),
-        np.array(origin) + np.array([height, 0]),
+        origin,
+        origin + np.array([0, width]),
+        origin + np.array([height, width]),
+        origin + np.array([height, 0]),
     ]
     return map(tuple, vertices)
 
 
-def symmetric_trapezoid(origin, height, wide_width, narrow_width):
+def symmetric_trapezoid(height, wide_width, narrow_width):
     vertices = [
-        np.array(origin),
-        np.array(origin) + np.array(
+        origin,
+        origin + np.array(
             [float(wide_width - narrow_width) / 2.0, height]
         ),
-        np.array(origin) + np.array(
+        origin + np.array(
             [wide_width - float(wide_width - narrow_width) / 2.0, height]
         ),
-        np.array(origin) + np.array([wide_width, 0]),
+        origin + np.array([wide_width, 0]),
     ]
     return map(tuple, vertices)
 
 
-def open_frustrum(closed_rectangle, open_rectangle, depth):
-    origin = (20, 20)
-    result = [rectangle(origin, *closed_rectangle)]
+def open_frustrum(closed_rectangle, open_rectangle, depth,
+                  front_height_fudge=0, front_width_fudge=0):
+    front_height, front_width = closed_rectangle
 
     width_closed, height_closed = closed_rectangle
     width_open, height_open = open_rectangle
 
-    result.append(symmetric_trapezoid(
-        origin,
-        np.sqrt(depth**2 + (float(height_open - height_closed) / 2.0)**2),
-        width_open,
-        width_closed)
-    )
-    result.append(symmetric_trapezoid(
-        origin,
-        np.sqrt(depth**2 + (float(width_open - width_closed) / 2.0)**2),
-        height_open,
-        height_closed)
-    )
-    return result
+    return [
+        rectangle(front_height - front_height_fudge,
+                  front_width - front_width_fudge),
+        symmetric_trapezoid(
+            np.sqrt(depth**2 + (float(height_open - height_closed) / 2.0)**2),
+            width_open,
+            width_closed),
+        symmetric_trapezoid(
+            np.sqrt(depth**2 + (float(width_open - width_closed) / 2.0)**2),
+            height_open,
+            height_closed)
+    ]
 
 
-polygons = open_frustrum((64, 64), (178, 128), 150)
+front_height_fudge = 2
+front_width_fudge = 2
+polygons = open_frustrum((64, 64), (178, 128), 150,
+                         front_height_fudge, front_width_fudge)
 
 phases = [
     [True, True, True, True],
@@ -112,18 +117,17 @@ for polygon_count, (polygon, phases) in enumerate(zip(polygons, phases)):
         segments.append(
             subdivide_line(np.array(start), np.array(end), 8, phase)
         )
-        dwg.add(dwg.line(start, end, stroke=svgwrite.rgb(200, 0, 0, '%'),
-                         stroke_width=1))
+        # dwg.add(dwg.line(start, end, stroke=svgwrite.rgb(0, 0, 0, '%'),
+        #                  stroke_width=1))
 
     for segment in segments:
         for i in range(len(segment) - 1):
             dwg.add(dwg.line(segment[i], segment[i+1],
-                             stroke=svgwrite.rgb(0, 0, 0, '%'),
+                             stroke=svgwrite.rgb(255, 0, 0, '%'),
                              stroke_width=1))
     if draw_circle:
-        dwg.add(dwg.line((20, 20), (20, 84),
-                         stroke=svgwrite.rgb(100, 0, 0, '%'), stroke_width=1))
-        dwg.add(dwg.circle((52, 52), 34.6 / 2.0, stroke=svgwrite.rgb(0, 0, 0),
+        dwg.add(dwg.circle((51, 51), 34.6 / 2.0,
+                           stroke=svgwrite.rgb(255, 0, 0),
                            stroke_width=1, fill='none'))
     dwg.save()
     draw_circle = False
