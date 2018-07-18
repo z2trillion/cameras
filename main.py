@@ -86,7 +86,8 @@ def open_frustrum(closed_rectangle, open_rectangle, depth,
         rectangle(front_height - front_height_fudge,
                   front_width - front_width_fudge),
         symmetric_trapezoid(
-            0.5 + np.sqrt(depth**2 + (float(height_open - height_closed) / 2.0)**2),
+            0.5 + np.sqrt(depth**2 + (float(height_open -
+                                            height_closed) / 2.0)**2),
             width_open,
             width_closed),
         symmetric_trapezoid(
@@ -96,8 +97,8 @@ def open_frustrum(closed_rectangle, open_rectangle, depth,
     ]
 
 
-front_height_fudge = 2
-front_width_fudge = 2
+front_height_fudge = 1.0
+front_width_fudge = 1.0
 polygons = open_frustrum((64.0, 64.0), (178.0, 128.0), 150.0,
                          front_height_fudge, front_width_fudge)
 
@@ -135,7 +136,9 @@ for polygon_count, (polygon, phases) in enumerate(zip(polygons, phases)):
                              stroke=svgwrite.rgb(255, 0, 0, '%'),
                              stroke_width=1))
     if polygon_count == 0:
-        dwg.add(dwg.circle((51, 51), 34.6 / 2.0,
-                           stroke=svgwrite.rgb(255, 0, 0),
-                           stroke_width=1, fill='none'))
+        dwg.add(dwg.circle(
+            (origin[0] + 32 - front_height_fudge / 2.0,
+             origin[1] + 32 - front_width_fudge / 2.0),
+            34.6 / 2.0, stroke=svgwrite.rgb(255, 0, 0),
+            stroke_width=1, fill='none'))
     dwg.save()
