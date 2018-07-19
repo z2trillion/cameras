@@ -147,8 +147,8 @@ for polygon_count, (polygon, phases) in enumerate(zip(polygons, phases)):
 film_holder_length = 220
 film_holder_width = 150 + 0.25
 
-film_hole_length = 179
-film_hole_width = 129
+film_hole_length = 177.5
+film_hole_width = 127.5
 
 distance_to_exposure_field = 17.5
 
@@ -220,7 +220,7 @@ for polygon, phases in zip(backplate_polygons, backplate_phases):
 
     for segment in segments:
         for i in range(len(segment) - 1):
-            backplate.add(backplate.line(segment[i], segment[i+1],
+            backplate.add(backplate.line(segment[i], segment[i + 1],
                                          stroke=svgwrite.rgb(255, 0, 0, '%'),
                                          stroke_width=1))
     backplate.save()
