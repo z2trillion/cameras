@@ -5,14 +5,14 @@ import svgwrite
 origin = np.array([20.0, 20.0])
 
 
-def subdivide_line(start, end, division_length, is_innie, midpoint_offset=0.0):
+def subdivide_line(start, end, division_length, is_innie, midpoint_offset=0.0,
+                   overshoot=1.0, exclusion=10.0):
     unit_vector = (end - start) / np.linalg.norm(end - start)
 
     midpoint = (start + end) / 2.0 + midpoint_offset * unit_vector
     step = division_length * unit_vector
     cuts = []
     position = step / 2.0
-    exclusion = 10
     while (np.linalg.norm(midpoint - start) -
             exclusion > np.linalg.norm(position)):
         cuts.append(np.copy(position))
@@ -28,8 +28,6 @@ def subdivide_line(start, end, division_length, is_innie, midpoint_offset=0.0):
         np.array([start[1] - end[1], end[0] - start[0]]) /
         np.linalg.norm(end - start)
     )
-
-    overshoot = 1.0
 
     result = []
     for index, position in zip(indices, positions):
@@ -142,3 +140,84 @@ for polygon_count, (polygon, phases) in enumerate(zip(polygons, phases)):
             34.6 / 2.0, stroke=svgwrite.rgb(255, 0, 0),
             stroke_width=1, fill='none'))
     dwg.save()
+
+film_holder_length = 220
+film_holder_width = 150 + 0.25
+
+film_hole_length = 179
+film_hole_width = 129
+
+distance_to_exposure_field = 17.5
+
+backplate_depth = 12.5
+
+backplate_polygons = [
+    rectangle(film_holder_length, film_holder_width),
+    rectangle(film_hole_length, film_hole_width),
+    rectangle(film_holder_length, backplate_depth),
+    rectangle(film_holder_length, backplate_depth),
+    rectangle(backplate_depth, film_holder_width),
+]
+backplate_phases = [
+    [True, True, True, True],
+    [False, True, False, True],
+    [False, True, False, False],
+    [False, False, False, False],
+    [False, True, False, True],
+]
+
+backplate = svgwrite.Drawing('backplate.svg', size=('300mm', '260mm'),
+                             viewBox=('0 0 300 260'))
+line_count = 0
+for polygon, phases in zip(backplate_polygons, backplate_phases):
+    segments = []
+    for start, end, phase in zip(polygon, np.roll(polygon, -1, axis=0),
+                                 phases):
+        start = np.array(start)
+        end = np.array(end)
+        offset = np.zeros(2)
+        exclusion = 10.0
+        overshoot = 0.0
+        if 4 <= line_count < 8:
+            offset = np.array([
+                distance_to_exposure_field,
+                float(film_holder_width - film_hole_width) / 2.0
+            ])
+        elif 8 <= line_count < 12:
+            offset = np.array([0, film_holder_width + 8])
+        elif 12 <= line_count < 16:
+            offset = np.array([0, 178])
+        elif 16 <= line_count:
+            offset = np.array([230, 0])
+
+        if line_count in [8, 10, 12, 14, 16, 17, 19]:
+            exclusion = 0
+            overshoot = 0.5
+        if line_count == 18:
+            overshoot = 0.5
+
+        midpoint_offset = 0.0
+        if line_count in [8, 19]:
+            midpoint_offset = -2.0
+        elif line_count in [12, 17]:
+            midpoint_offset = 2.0
+
+        if line_count in [2, 9, 10, 14, 15, 16]:
+            step = 8 * (end - start) / np.linalg.norm(end - start)
+            segments.append(np.array([start - overshoot * step + offset,
+                                      end + overshoot * step + offset]))
+        else:
+            segments.append(
+                subdivide_line(np.array(start) + offset,
+                               np.array(end) + offset, 8, phase,
+                               overshoot=overshoot, exclusion=exclusion,
+                               midpoint_offset=midpoint_offset)
+            )
+        line_count += 1
+
+    for segment in segments:
+        for i in range(len(segment) - 1):
+            backplate.add(backplate.line(segment[i], segment[i+1],
+                                         stroke=svgwrite.rgb(255, 0, 0, '%'),
+                                         stroke_width=1))
+    backplate.save()
