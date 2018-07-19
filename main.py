@@ -96,6 +96,7 @@ def open_frustrum(closed_rectangle, open_rectangle, depth,
 
 front_height_fudge = 1.0
 front_width_fudge = 1.0
+# The length of the opening is actually only 171mm!
 polygons = open_frustrum((64.0, 64.0), (178.0, 128.0), 150.0,
                          front_height_fudge, front_width_fudge)
 
