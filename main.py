@@ -6,7 +6,7 @@ origin = np.array([20.0, 20.0])
 
 
 def subdivide_line(start, end, division_length, is_innie, midpoint_offset=0.0,
-                   overshoot=1.0, exclusion=10.0):
+                   overshoot=1.0, exclusion=10.0, tooth_length=4.0):
     unit_vector = (end - start) / np.linalg.norm(end - start)
 
     midpoint = (start + end) / 2.0 + midpoint_offset * unit_vector
@@ -22,7 +22,6 @@ def subdivide_line(start, end, division_length, is_innie, midpoint_offset=0.0,
                                       np.array(cuts)))
     indices = range(-len(cuts), len(cuts))
 
-    tooth_length = 4
     offset = (
         tooth_length *
         np.array([start[1] - end[1], end[0] - start[0]]) /
@@ -122,9 +121,13 @@ for polygon_count, (polygon, phases) in enumerate(zip(polygons, phases)):
             elif line_count == 2:
                 midpoint_offset = offset_magnitude
 
+        tooth_length = 4.0
+        if polygon_count != 0 and line_count == 3:
+            tooth_length = 2.5
         segments.append(
             subdivide_line(np.array(start), np.array(end), 8, phase,
-                           midpoint_offset)
+                           midpoint_offset=midpoint_offset,
+                           tooth_length=tooth_length)
         )
         line_count += 1
 
