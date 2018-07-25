@@ -48,7 +48,9 @@ def subdivide_line(start, end, division_length, is_innie, midpoint_offset=0.0,
     return np.array(result)
 
 
-def rectangle(height, width):
+def rectangle(height, width, origin=None):
+    if origin is None:
+        origin = np.array([20.0, 20.0])
     vertices = [
         origin,
         origin + np.array([0, width]),
@@ -225,3 +227,56 @@ for polygon, phases in zip(backplate_polygons, backplate_phases):
                                          stroke=svgwrite.rgb(255, 0, 0, '%'),
                                          stroke_width=1))
     backplate.save()
+
+ground_glass_holder = svgwrite.Drawing('ground_glass_holder.svg',
+                                       size=('300mm', '260mm'),
+                                       viewBox=('0 0 300 260'))
+film_hole_length = 170.75  # mason! fix this above.
+film_hole_width = 124
+film_holder_length = 214 # fix this too!
+film_hole_origin = origin + np.array([
+    distance_to_exposure_field,
+    float(film_holder_width - film_hole_width) / 2.0
+])
+ground_glass_holder_polygons = [
+    rectangle(film_holder_length, film_holder_width),
+    rectangle(film_hole_length, film_hole_width, origin=film_hole_origin),
+]
+
+for polygon in ground_glass_holder_polygons:
+    segments = []
+    for start, end in zip(polygon, np.roll(polygon, -1, axis=0)):
+        ground_glass_holder.add(ground_glass_holder.line(
+            start, end, stroke=svgwrite.rgb(255, 0, 0, '%'), stroke_width=1)
+        )
+
+ground_glass_drill_holes_centers = [
+    origin + np.array([
+        distance_to_exposure_field - 5.25, film_holder_width / 3.0
+    ]),
+    origin + np.array([
+        distance_to_exposure_field - 5.25, 2.0 * film_holder_width / 3
+    ]),
+    origin + np.array([
+        distance_to_exposure_field + film_hole_length + 5.25,
+        film_holder_width / 3.0
+    ]),
+    origin + np.array([
+        distance_to_exposure_field + film_hole_length + 5.25,
+        2.0 * film_holder_width / 3.0
+    ]),
+    origin + np.array([
+        distance_to_exposure_field + film_hole_length / 2,
+        float(film_holder_width - film_hole_width) / 2.0 - 4
+    ]),
+    origin + np.array([
+        distance_to_exposure_field + film_hole_length / 2,
+        film_hole_width + float(film_holder_width - film_hole_width) / 2.0 + 4
+    ]),
+]
+for circle_center in ground_glass_drill_holes_centers:
+    ground_glass_holder.add(ground_glass_holder.circle(
+        circle_center, 1.2,
+        stroke=svgwrite.rgb(255, 0, 0), stroke_width=1, fill='none'
+    ))
+ground_glass_holder.save()
