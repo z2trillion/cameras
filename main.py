@@ -107,8 +107,8 @@ polygons = open_frustrum((64.0, 64.0), (film_hole_length, film_hole_width),
 
 phases = [
     [True, True, True, True],
-    [True, False, True, True],
-    [False, False, False, False],
+    [True, False, True, False],
+    [False, False, False, True],
 ]
 
 for polygon_count, (polygon, phases) in enumerate(zip(polygons, phases)):
