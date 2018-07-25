@@ -6,7 +6,7 @@ origin = np.array([20.0, 20.0])
 
 
 def subdivide_line(start, end, division_length, is_innie, midpoint_offset=0.0,
-                   overshoot=1.0, exclusion=10.0, tooth_length=4.0):
+                   overshoot=1.0, exclusion=10.0, tooth_length=3.0):
     unit_vector = (end - start) / np.linalg.norm(end - start)
 
     midpoint = (start + end) / 2.0 + midpoint_offset * unit_vector
@@ -98,9 +98,12 @@ def open_frustrum(closed_rectangle, open_rectangle, depth,
 
 front_height_fudge = 1.0
 front_width_fudge = 1.0
-# The length of the opening is actually only 171mm!
-polygons = open_frustrum((64.0, 64.0), (178.0, 128.0), 150.0,
-                         front_height_fudge, front_width_fudge)
+film_hole_length = 170.75
+film_hole_width = 124.0
+lens_frustrum_length = 130.0
+polygons = open_frustrum((64.0, 64.0), (film_hole_length, film_hole_width),
+                         lens_frustrum_length, front_height_fudge,
+                         front_width_fudge)
 
 phases = [
     [True, True, True, True],
@@ -124,7 +127,7 @@ for polygon_count, (polygon, phases) in enumerate(zip(polygons, phases)):
             elif line_count == 2:
                 midpoint_offset = offset_magnitude
 
-        tooth_length = 4.0
+        tooth_length = 3.0
         if polygon_count != 0 and line_count == 3:
             tooth_length = 2.5
         segments.append(
@@ -147,11 +150,8 @@ for polygon_count, (polygon, phases) in enumerate(zip(polygons, phases)):
             stroke_width=1, fill='none'))
     dwg.save()
 
-film_holder_length = 220
+film_holder_length = 214
 film_holder_width = 150 + 0.25
-
-film_hole_length = 177.5
-film_hole_width = 127.5
 
 distance_to_exposure_field = 17.5
 
@@ -166,7 +166,7 @@ backplate_polygons = [
 ]
 backplate_phases = [
     [True, True, True, True],
-    [False, True, False, True],
+    [True, False, True, False],
     [False, True, False, False],
     [False, False, False, False],
     [False, True, False, True],
@@ -231,9 +231,6 @@ for polygon, phases in zip(backplate_polygons, backplate_phases):
 ground_glass_holder = svgwrite.Drawing('ground_glass_holder.svg',
                                        size=('300mm', '260mm'),
                                        viewBox=('0 0 300 260'))
-film_hole_length = 170.75  # mason! fix this above.
-film_hole_width = 124
-film_holder_length = 214 # fix this too!
 film_hole_origin = origin + np.array([
     distance_to_exposure_field,
     float(film_holder_width - film_hole_width) / 2.0
