@@ -100,7 +100,7 @@ front_height_fudge = 1.0
 front_width_fudge = 1.0
 film_hole_length = 170.75
 film_hole_width = 124.0
-lens_frustrum_length = 130.0
+lens_frustrum_length = 134.5
 polygons = open_frustrum((64.0, 64.0), (film_hole_length, film_hole_width),
                          lens_frustrum_length, front_height_fudge,
                          front_width_fudge)
