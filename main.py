@@ -100,7 +100,7 @@ front_height_fudge = 1.0
 front_width_fudge = 1.0
 film_hole_length = 170.75
 film_hole_width = 124.0
-lens_frustrum_length = 134.5
+lens_frustrum_length = 132.0
 polygons = open_frustrum((64.0, 64.0), (film_hole_length, film_hole_width),
                          lens_frustrum_length, front_height_fudge,
                          front_width_fudge)
@@ -249,25 +249,33 @@ for polygon in ground_glass_holder_polygons:
 
 ground_glass_drill_holes_centers = [
     origin + np.array([
-        distance_to_exposure_field - 5.25, film_holder_width / 3.0
+        distance_to_exposure_field - 5.5, film_holder_width / 3.0
     ]),
     origin + np.array([
-        distance_to_exposure_field - 5.25, 2.0 * film_holder_width / 3
+        distance_to_exposure_field - 5.5, 2.0 * film_holder_width / 3
     ]),
     origin + np.array([
-        distance_to_exposure_field + film_hole_length + 5.25,
+        distance_to_exposure_field + film_hole_length + 5.5,
         film_holder_width / 3.0
     ]),
     origin + np.array([
-        distance_to_exposure_field + film_hole_length + 5.25,
+        distance_to_exposure_field + film_hole_length + 5.5,
         2.0 * film_holder_width / 3.0
     ]),
     origin + np.array([
-        distance_to_exposure_field + film_hole_length / 2,
+        distance_to_exposure_field + film_hole_length / 3.0,
         float(film_holder_width - film_hole_width) / 2.0 - 4
     ]),
     origin + np.array([
-        distance_to_exposure_field + film_hole_length / 2,
+        distance_to_exposure_field + 2.0 * film_hole_length / 3.0,
+        float(film_holder_width - film_hole_width) / 2.0 - 4
+    ]),
+    origin + np.array([
+        distance_to_exposure_field + film_hole_length / 3.0,
+        film_hole_width + float(film_holder_width - film_hole_width) / 2.0 + 4
+    ]),
+    origin + np.array([
+        distance_to_exposure_field + 2.0 * film_hole_length / 3.0,
         film_hole_width + float(film_holder_width - film_hole_width) / 2.0 + 4
     ]),
 ]
