@@ -96,6 +96,17 @@ def open_frustrum(closed_rectangle, open_rectangle, depth,
     ]
 
 
+def quarter_circle(drawning, start, end):
+    difference = start - end
+    radius = np.abs(difference[0])
+    assert radius == np.abs(difference[1]), (start, end)
+
+    path_string = "M %f %f A %i %i 0 0 0 %f %f" % (start[0], start[1], radius,
+                                                   radius, end[0], end[1])
+    return drawning.path(d=path_string, stroke=svgwrite.rgb(255, 0, 0),
+                         stroke_width=1, fill='none')
+
+
 front_height_fudge = 1.0
 front_width_fudge = 1.0
 film_hole_length = 170.75
@@ -240,9 +251,30 @@ ground_glass_holder_polygons = [
     rectangle(film_hole_length, film_hole_width, origin=film_hole_origin),
 ]
 
-for polygon in ground_glass_holder_polygons:
+for i, polygon in enumerate(ground_glass_holder_polygons):
     segments = []
-    for start, end in zip(polygon, np.roll(polygon, -1, axis=0)):
+    for line_count, (start, end) in enumerate(zip(
+            polygon, np.roll(polygon, -1, axis=0))):
+        if i == 1:
+            radius = 5
+            if line_count == 0:
+                start += np.array([0, radius])
+                end -= np.array([0, radius])
+                arc_end = end + np.array([radius, radius])
+            elif line_count == 1:
+                start += np.array([radius, 0])
+                end -= np.array([radius, 0])
+                arc_end = end + np.array([radius, -radius])
+            elif line_count == 2:
+                start -= np.array([0, radius])
+                end += np.array([0, radius])
+                arc_end = end + np.array([-radius, -radius])
+            else:
+                start -= np.array([radius, 0])
+                end += np.array([radius, 0])
+                arc_end = end + np.array([-radius, radius])
+            ground_glass_holder.add(quarter_circle(ground_glass_holder, end,
+                                                   arc_end))
         ground_glass_holder.add(ground_glass_holder.line(
             start, end, stroke=svgwrite.rgb(255, 0, 0, '%'), stroke_width=1)
         )
