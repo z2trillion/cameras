@@ -313,7 +313,25 @@ ground_glass_drill_holes_centers = [
 ]
 for circle_center in ground_glass_drill_holes_centers:
     ground_glass_holder.add(ground_glass_holder.circle(
-        circle_center, 1.2,
+        circle_center, 1.4,
         stroke=svgwrite.rgb(255, 0, 0), stroke_width=1, fill='none'
     ))
 ground_glass_holder.save()
+
+spacer_polygons = [
+    rectangle(film_holder_length - 23, film_holder_width),
+    rectangle(film_hole_length, film_hole_width, origin=film_hole_origin),
+    rectangle(15, film_holder_width, origin=np.array([220, 20])),
+]
+
+spacer = svgwrite.Drawing('spacer.svg', size=('300mm', '260mm'),
+                          viewBox=('0 0 300 260'))
+for i, polygon in enumerate(spacer_polygons):
+    segments = []
+    for line_count, (start, end) in enumerate(zip(
+            polygon, np.roll(polygon, -1, axis=0))):
+        spacer.add(spacer.line(
+            start, end, stroke=svgwrite.rgb(255, 0, 0, '%'), stroke_width=1)
+        )
+
+spacer.save()
