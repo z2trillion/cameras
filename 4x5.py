@@ -11,17 +11,17 @@ origin = np.array([20.0, 20.0])
 
 front_height_fudge = 1.0
 front_width_fudge = 1.0
-film_hole_length = 122
+film_hole_length = 121.5
 film_hole_width = 98
-lens_frustrum_length = 75.0
+lens_frustrum_length = 86.0
 polygons = open_frustrum((60.0, 60.0), (film_hole_length, film_hole_width),
                          lens_frustrum_length, front_height_fudge,
                          front_width_fudge)
 
 phases = [
     [True, True, True, True],
-    [True, False, True, False],
-    [False, False, False, True],
+    [True, False, True, True],
+    [False, False, False, False],
 ]
 
 for polygon_count, (polygon, phases) in enumerate(zip(polygons, phases)):
@@ -57,8 +57,8 @@ for polygon_count, (polygon, phases) in enumerate(zip(polygons, phases)):
                              stroke_width=1))
     if polygon_count == 0:
         dwg.add(dwg.circle(
-            (origin[0] + 32 - front_height_fudge / 2.0,
-             origin[1] + 32 - front_width_fudge / 2.0),
+            (origin[0] + 30 - front_height_fudge / 2.0,
+             origin[1] + 30 - front_width_fudge / 2.0),
             34.6 / 2.0, stroke=svgwrite.rgb(255, 0, 0),
             stroke_width=1, fill='none'))
     dwg.save()
