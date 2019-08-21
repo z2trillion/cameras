@@ -13,7 +13,7 @@ front_height_fudge = 1.0
 front_width_fudge = 1.0
 film_hole_length = 121.5
 film_hole_width = 98
-lens_frustrum_length = 86.0
+lens_frustrum_length = 90.0
 polygons = open_frustrum((60.0, 60.0), (film_hole_length, film_hole_width),
                          lens_frustrum_length, front_height_fudge,
                          front_width_fudge)
@@ -25,8 +25,8 @@ phases = [
 ]
 
 for polygon_count, (polygon, phases) in enumerate(zip(polygons, phases)):
-    dwg = svgwrite.Drawing('%i_4x5.svg' % polygon_count, size=('240mm', '240mm'),
-                           viewBox=('0 0 240 240'))
+    dwg = svgwrite.Drawing('%i_4x5.svg' % polygon_count,
+                           size=('240mm', '240mm'), viewBox=('0 0 240 240'))
 
     segments = []
     line_count = 0
